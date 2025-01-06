@@ -1,100 +1,122 @@
-import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, Calendar, Clock } from "lucide-react";
+
+const posts = [
+  {
+    id: 1,
+    title: "Modern Web Development with Next.js",
+    excerpt: "Next.js ile modern web uygulamaları geliştirme sürecinde öğrendiğim en iyi pratikler ve ipuçları...",
+    date: "6 Ocak 2024",
+    readTime: "5 dk",
+    category: "Web Development"
+  },
+  {
+    id: 2,
+    title: "TypeScript Best Practices",
+    excerpt: "TypeScript ile kod yazarken dikkat edilmesi gereken noktalar ve clean code prensipleri...",
+    date: "5 Ocak 2024",
+    readTime: "4 dk",
+    category: "TypeScript"
+  },
+  {
+    id: 3,
+    title: "React Performance Optimization",
+    excerpt: "React uygulamalarında performans optimizasyonu için kullanabileceğiniz teknikler...",
+    date: "4 Ocak 2024",
+    readTime: "6 dk",
+    category: "React"
+  },
+  {
+    id: 4,
+    title: "Backend Development with Node.js",
+    excerpt: "Node.js ile backend geliştirme sürecinde karşılaştığım zorluklar ve çözüm yöntemleri...",
+    date: "3 Ocak 2024",
+    readTime: "7 dk",
+    category: "Backend"
+  },
+  {
+    id: 5,
+    title: "Docker ve Containerization",
+    excerpt: "Docker kullanarak uygulamalarınızı nasıl container'lara dönüştürebilirsiniz...",
+    date: "2 Ocak 2024",
+    readTime: "8 dk",
+    category: "DevOps"
+  }
+];
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen">
+      {/* Header */}
+      <header className="fixed top-0 w-full border-b border-zinc-800 bg-black/50 backdrop-blur-md z-50">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <Link href="/" className="text-xl font-bold">Osman Tunahan</Link>
+          <nav className="space-x-6">
+            <Link href="https://osmantunahan.com.tr" className="hover:text-zinc-400 transition">Hakkımda</Link>
+          </nav>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+      </header>
+
+      {/* Compact Hero Section */}
+      <section className="pt-24 pb-8 px-4 bg-gradient-to-b from-zinc-900/50">
+        <div className="container mx-auto max-w-3xl text-center">
+          <h1 className="text-3xl sm:text-4xl font-bold mb-4">
+            Cyber Security Expert & Full Stack Developer
+          </h1>
+          <p className="text-zinc-400">
+            Hello, I'm a cyber security expert based in the Turkey. I am also a full stack developer.
+          </p>
+        </div>
+      </section>
+
+      {/* Blog Posts */}
+      <section className="py-12 px-4">
+        <div className="container mx-auto max-w-4xl">
+          <div className="space-y-8">
+            {posts.map((post) => (
+              <article 
+                key={post.id} 
+                className="bg-zinc-900/50 rounded-xl p-6 hover:bg-zinc-800/50 transition group"
+              >
+                <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
+                  <span className="text-sm px-3 py-1 rounded-full bg-zinc-800 text-zinc-300 inline-flex items-center">
+                    {post.category}
+                  </span>
+                  <div className="flex items-center gap-4 text-sm text-zinc-400">
+                    <span className="flex items-center gap-1">
+                      <Calendar size={14} />
+                      {post.date}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Clock size={14} />
+                      {post.readTime}
+                    </span>
+                  </div>
+                </div>
+                <h2 className="text-xl font-semibold mb-3 group-hover:text-white transition">
+                  {post.title}
+                </h2>
+                <p className="text-zinc-400 mb-4 line-clamp-2">
+                  {post.excerpt}
+                </p>
+                <Link 
+                  href={`/${post.id}`} 
+                  className="inline-flex items-center gap-2 text-zinc-300 hover:text-white transition"
+                >
+                  Devamını Oku
+                  <ArrowRight size={16} />
+                </Link>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-zinc-800 py-8 px-4 mt-12">
+        <div className="container mx-auto max-w-4xl text-center text-zinc-400">
+          <p>© 2025 Osman Tunahan ARIKAN. Tüm hakları saklıdır.</p>
+        </div>
       </footer>
     </div>
   );
