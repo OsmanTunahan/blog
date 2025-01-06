@@ -15,6 +15,21 @@ export interface Post {
   excerpt: string;
 }
 
+const WORDS_PER_MINUTE = 200;
+
+function calculateReadingTime(content: string): string {
+  const cleanContent = content
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/`.*?`/g, '')
+    .replace(/\[.*?\]\(.*?\)/g, '')
+    .replace(/[#*_~`]/g, '');
+
+  const words = cleanContent.trim().split(/\s+/).length;
+  const minutes = Math.ceil(words / WORDS_PER_MINUTE);
+  
+  return `${minutes} dk`;
+}
+
 export function getAllPosts(): Post[] {
   const fileNames = fs.readdirSync(postsDirectory);
   const allPosts = fileNames
@@ -29,6 +44,7 @@ export function getAllPosts(): Post[] {
       return {
         slug,
         content,
+        readTime: calculateReadingTime(content),
         ...data,
       } as Post;
     });
@@ -51,6 +67,7 @@ export function getPostBySlug(slug: string): Post | null {
     return {
       slug,
       content,
+      readTime: calculateReadingTime(content),
       ...data,
     } as Post;
   } catch (error) {

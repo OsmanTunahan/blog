@@ -3,7 +3,6 @@ title: Test blog bla bla
 date: '2024-01-06'
 category: Genel
 author: Osman Tunahan ARIKAN
-readTime: 5 dk
 excerpt: Bu bir test blog yazısıdır.
 ---
 
