@@ -1,50 +1,10 @@
 import Link from "next/link";
 import { ArrowRight, Calendar, Clock } from "lucide-react";
+import { getAllPosts } from "@/lib/posts";
 
-const posts = [
-  {
-    id: 1,
-    title: "Modern Web Development with Next.js",
-    excerpt: "Next.js ile modern web uygulamaları geliştirme sürecinde öğrendiğim en iyi pratikler ve ipuçları...",
-    date: "6 Ocak 2024",
-    readTime: "5 dk",
-    category: "Web Development"
-  },
-  {
-    id: 2,
-    title: "TypeScript Best Practices",
-    excerpt: "TypeScript ile kod yazarken dikkat edilmesi gereken noktalar ve clean code prensipleri...",
-    date: "5 Ocak 2024",
-    readTime: "4 dk",
-    category: "TypeScript"
-  },
-  {
-    id: 3,
-    title: "React Performance Optimization",
-    excerpt: "React uygulamalarında performans optimizasyonu için kullanabileceğiniz teknikler...",
-    date: "4 Ocak 2024",
-    readTime: "6 dk",
-    category: "React"
-  },
-  {
-    id: 4,
-    title: "Backend Development with Node.js",
-    excerpt: "Node.js ile backend geliştirme sürecinde karşılaştığım zorluklar ve çözüm yöntemleri...",
-    date: "3 Ocak 2024",
-    readTime: "7 dk",
-    category: "Backend"
-  },
-  {
-    id: 5,
-    title: "Docker ve Containerization",
-    excerpt: "Docker kullanarak uygulamalarınızı nasıl container'lara dönüştürebilirsiniz...",
-    date: "2 Ocak 2024",
-    readTime: "8 dk",
-    category: "DevOps"
-  }
-];
+export default async function Home() {
+  const posts = getAllPosts();
 
-export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Header */}
@@ -75,7 +35,7 @@ export default function Home() {
           <div className="space-y-8">
             {posts.map((post) => (
               <article 
-                key={post.id} 
+                key={post.slug} 
                 className="bg-zinc-900/50 rounded-xl p-6 hover:bg-zinc-800/50 transition group"
               >
                 <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
@@ -85,7 +45,11 @@ export default function Home() {
                   <div className="flex items-center gap-4 text-sm text-zinc-400">
                     <span className="flex items-center gap-1">
                       <Calendar size={14} />
-                      {post.date}
+                      {new Date(post.date).toLocaleDateString('tr-TR', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
                     </span>
                     <span className="flex items-center gap-1">
                       <Clock size={14} />
@@ -100,7 +64,7 @@ export default function Home() {
                   {post.excerpt}
                 </p>
                 <Link 
-                  href={`/${post.id}`} 
+                  href={`/${post.slug}`} 
                   className="inline-flex items-center gap-2 text-zinc-300 hover:text-white transition"
                 >
                   Devamını Oku
