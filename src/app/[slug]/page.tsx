@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, Calendar, Clock } from "lucide-react";
 import { MDXRemote } from 'next-mdx-remote/rsc';
-import { getPostBySlug, getAllPosts } from '@/lib/posts';
+import { getPostBySlug } from '@/lib/posts';
 import { notFound } from 'next/navigation';
 import type { MDXComponents } from 'mdx/types';
 import rehypePrettyCode from 'rehype-pretty-code';
@@ -63,7 +63,7 @@ const components: MDXComponents = {
 };
 
 export default async function BlogPost({ params }: Props) {
-  const post = await getPostBySlug(params.slug);
+  const post = getPostBySlug((await params).slug);
 
   if (!post) {
     notFound();
@@ -134,11 +134,4 @@ export default async function BlogPost({ params }: Props) {
       <Footer />
     </div>
   );
-}
-
-export async function generateStaticParams() {
-  const posts = getAllPosts();
-  return posts.map((post) => ({
-    slug: post.slug,
-  }));
 } 
