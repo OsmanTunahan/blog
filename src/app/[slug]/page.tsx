@@ -131,6 +131,7 @@ export default async function BlogPost({ params }: Props) {
         </article>
       </main>
       
+      {/* Footer */}
       <Footer />
     </div>
   );

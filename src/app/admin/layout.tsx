@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth/next";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sidebar } from "@/components/admin/Sidebar";
 import { MobileNav } from "@/components/admin/MobileNav";
 
