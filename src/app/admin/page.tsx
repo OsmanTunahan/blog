@@ -5,7 +5,7 @@ import { FileText, PlusCircle, Settings, TrendingUp } from "lucide-react";
 import Link from "next/link";
 
 export default async function AdminDashboard() {
-  const posts = await getAllPosts();
+  const posts = getAllPosts();
   const totalPosts = posts.length;
 
   return (
