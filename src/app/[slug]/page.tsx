@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import type { MDXComponents } from 'mdx/types';
 import rehypePrettyCode from 'rehype-pretty-code';
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 interface Props {
   params: {
@@ -69,11 +70,11 @@ export default async function BlogPost({ params }: Props) {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="flex flex-col min-h-screen">
       <Header />
 
       {/* Blog Post Content */}
-      <main className="pt-24 pb-16 px-4">
+      <main className="flex-1 pt-24 pb-16 px-4">
         <article className="container mx-auto max-w-3xl">
           {/* Back Button */}
           <Link 
@@ -129,13 +130,8 @@ export default async function BlogPost({ params }: Props) {
           </div>
         </article>
       </main>
-
-      {/* Footer */}
-      <footer className="border-t border-zinc-800 py-8 px-4">
-        <div className="container mx-auto max-w-4xl text-center text-zinc-400">
-          <p>© 2025 Osman Tunahan ARIKAN. Tüm hakları saklıdır.</p>
-        </div>
-      </footer>
+      
+      <Footer />
     </div>
   );
 } 
