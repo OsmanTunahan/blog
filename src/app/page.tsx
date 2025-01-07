@@ -1,21 +1,14 @@
 import Link from "next/link";
 import { ArrowRight, Calendar, Clock } from "lucide-react";
 import { getAllPosts } from "@/lib/posts";
+import Header from "@/components/Header";
 
 export default async function Home() {
   const posts = getAllPosts();
 
   return (
     <div className="min-h-screen">
-      {/* Header */}
-      <header className="fixed top-0 w-full border-b border-zinc-800 bg-black/50 backdrop-blur-md z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold">Osman Tunahan</Link>
-          <nav className="space-x-6">
-            <Link href="https://osmantunahan.com.tr" className="hover:text-zinc-400 transition">Hakkımda</Link>
-          </nav>
-        </div>
-      </header>
+      <Header />
 
       {/* Compact Hero Section */}
       <section className="pt-24 pb-8 px-4 bg-gradient-to-b from-zinc-900/50">

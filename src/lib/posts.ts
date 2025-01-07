@@ -23,7 +23,6 @@ function calculateReadingTime(content: string): string {
     .replace(/`.*?`/g, '')
     .replace(/\[.*?\]\(.*?\)/g, '')
     .replace(/[#*_~`]/g, '');
-
   const words = cleanContent.trim().split(/\s+/).length;
   const minutes = Math.ceil(words / WORDS_PER_MINUTE);
   

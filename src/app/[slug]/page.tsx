@@ -5,6 +5,7 @@ import { getPostBySlug } from '@/lib/posts';
 import { notFound } from 'next/navigation';
 import type { MDXComponents } from 'mdx/types';
 import rehypePrettyCode from 'rehype-pretty-code';
+import Header from "@/components/Header";
 
 interface Props {
   params: {
@@ -69,15 +70,7 @@ export default async function BlogPost({ params }: Props) {
 
   return (
     <div className="min-h-screen">
-      {/* Header */}
-      <header className="fixed top-0 w-full border-b border-zinc-800 bg-black/50 backdrop-blur-md z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold">Osman Tunahan</Link>
-          <nav className="space-x-6">
-            <Link href="https://osmantunahan.com.tr" className="hover:text-zinc-400 transition">Hakkımda</Link>
-          </nav>
-        </div>
-      </header>
+      <Header />
 
       {/* Blog Post Content */}
       <main className="pt-24 pb-16 px-4">
