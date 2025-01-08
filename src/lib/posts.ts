@@ -1,8 +1,5 @@
-import fs from 'fs';
-import path from 'path';
-import matter from 'gray-matter';
-
-const postsDirectory = path.join(process.cwd(), 'src/posts');
+import { connectDB } from './db';
+import Post, { IPost } from '@/models/Post';
 
 export interface Post {
   slug: string;
@@ -29,47 +26,87 @@ function calculateReadingTime(content: string): string {
   return `${minutes} min`;
 }
 
-export function getAllPosts(): Post[] {
-  const fileNames = fs.readdirSync(postsDirectory);
-  const allPosts = fileNames
-    .filter(fileName => fileName.endsWith('.md'))
-    .map(fileName => {
-      const slug = fileName.replace(/\.md$/, '');
-      const fullPath = path.join(postsDirectory, fileName);
-      const fileContents = fs.readFileSync(fullPath, 'utf8');
-
-      const { data, content } = matter(fileContents);
-
-      return {
-        slug,
-        content,
-        readTime: calculateReadingTime(content),
-        ...data,
-      } as Post;
-    });
-
-  return allPosts.sort((a, b) => {
-    if (a.date < b.date) {
-      return 1;
-    } else {
-      return -1;
-    }
-  });
+export async function getAllPosts(): Promise<Post[]> {
+  await connectDB();
+  const posts = await Post.find({}).sort({ createdAt: -1 });
+  
+  return posts.map(post => ({
+    slug: post.slug,
+    title: post.title,
+    date: post.date,
+    content: post.content,
+    category: post.category,
+    author: post.author,
+    readTime: calculateReadingTime(post.content),
+    excerpt: post.excerpt
+  }));
 }
 
-export function getPostBySlug(slug: string): Post | null {
-  try {
-    const fullPath = path.join(postsDirectory, `${slug}.md`);
-    const fileContents = fs.readFileSync(fullPath, 'utf8');
-    const { data, content } = matter(fileContents);
+export async function getPostBySlug(slug: string): Promise<Post | null> {
+  await connectDB();
+  const post = await Post.findOne({ slug });
 
-    return {
-      slug,
-      content,
-      readTime: calculateReadingTime(content),
-      ...data,
-    } as Post;
-  } catch (error) {
+  if (!post) {
     return null;
   }
+
+  return {
+    slug: post.slug,
+    title: post.title,
+    date: post.date,
+    content: post.content,
+    category: post.category,
+    author: post.author,
+    readTime: calculateReadingTime(post.content),
+    excerpt: post.excerpt
+  };
+}
+
+export async function createPost(postData: Omit<Post, 'readTime'>): Promise<Post> {
+  await connectDB();
+  const post = await Post.create({
+    ...postData,
+    createdAt: new Date()
+  });
+
+  return {
+    slug: post.slug,
+    title: post.title,
+    date: post.date,
+    content: post.content,
+    category: post.category,
+    author: post.author,
+    readTime: calculateReadingTime(post.content),
+    excerpt: post.excerpt
+  };
+}
+
+export async function updatePost(slug: string, postData: Partial<Post>): Promise<Post | null> {
+  await connectDB();
+  const post = await Post.findOneAndUpdate(
+    { slug },
+    { $set: postData },
+    { new: true, runValidators: true }
+  );
+
+  if (!post) {
+    return null;
+  }
+
+  return {
+    slug: post.slug,
+    title: post.title,
+    date: post.date,
+    content: post.content,
+    category: post.category,
+    author: post.author,
+    readTime: calculateReadingTime(post.content),
+    excerpt: post.excerpt
+  };
+}
+
+export async function deletePost(slug: string): Promise<boolean> {
+  await connectDB();
+  const result = await Post.findOneAndDelete({ slug });
+  return !!result;
 }
