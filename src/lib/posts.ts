@@ -23,8 +23,12 @@ function calculateReadingTime(content: string): string {
   return `${minutes} min`;
 }
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+
 export async function getAllPosts(): Promise<Post[]> {
-  const response = await fetch('/api/posts', { next: { revalidate: 3600 } });
+  const response = await fetch(`${BASE_URL}/api/posts`, { 
+    next: { revalidate: 3600 } 
+  });
   const posts = await response.json();
   
   return posts.map((post: any) => ({
@@ -34,7 +38,9 @@ export async function getAllPosts(): Promise<Post[]> {
 }
 
 export async function getPostBySlug(slug: string): Promise<Post | null> {
-  const response = await fetch(`/api/posts?slug=${slug}`, { next: { revalidate: 3600 } });
+  const response = await fetch(`${BASE_URL}/api/posts?slug=${slug}`, { 
+    next: { revalidate: 3600 } 
+  });
   
   if (!response.ok) {
     return null;
@@ -48,7 +54,7 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
 }
 
 export async function createPost(postData: Omit<Post, 'readTime'>): Promise<Post> {
-  const response = await fetch('/api/posts', {
+  const response = await fetch(`${BASE_URL}/api/posts`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(postData)
@@ -66,7 +72,7 @@ export async function createPost(postData: Omit<Post, 'readTime'>): Promise<Post
 }
 
 export async function updatePost(slug: string, postData: Partial<Post>): Promise<Post | null> {
-  const response = await fetch(`/api/posts?slug=${slug}`, {
+  const response = await fetch(`${BASE_URL}/api/posts?slug=${slug}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(postData)
@@ -84,7 +90,7 @@ export async function updatePost(slug: string, postData: Partial<Post>): Promise
 }
 
 export async function deletePost(slug: string): Promise<boolean> {
-  const response = await fetch(`/api/posts?slug=${slug}`, {
+  const response = await fetch(`${BASE_URL}/api/posts?slug=${slug}`, {
     method: 'DELETE'
   });
 
