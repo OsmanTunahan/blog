@@ -8,14 +8,10 @@ import rehypePrettyCode from 'rehype-pretty-code';
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { generateMetadata } from './metadata';
+import * as React from 'react';
 
 export { generateMetadata };
 
-interface Props {
-  params: {
-    slug: string;
-  };
-}
 
 const options = {
   theme: 'one-dark-pro',
@@ -65,8 +61,10 @@ const components: MDXComponents = {
   )
 };
 
-export default async function BlogPost({ params }: Props) {
-  const post = await getPostBySlug((await params).slug);
+export default async function BlogPost({ params }: { params: { slug: string } }) {
+  const { slug } = await params;
+
+  const post = await getPostBySlug(slug);
 
   if (!post) {
     notFound();
