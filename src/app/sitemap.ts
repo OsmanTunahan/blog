@@ -1,12 +1,12 @@
-import { getAllPosts } from '@/lib/posts';
+import { getAllPosts, Post } from '@/lib/posts';
 import { MetadataRoute } from 'next';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-  const posts = getAllPosts();
+  const posts = await getAllPosts();
 
   // Blog post URLs
-  const postUrls = posts.map((post) => ({
+  const postUrls = posts.map((post: Post) => ({
     url: `${baseUrl}/${post.slug}`,
     lastModified: new Date(post.date),
     changeFrequency: 'weekly' as const,
