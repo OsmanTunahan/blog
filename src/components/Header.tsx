@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSession, signOut } from 'next-auth/react';
 import { useState, useRef, useEffect } from 'react';
-import { ChevronDown, LogOut } from 'lucide-react';
+import { ChevronDown, LogOut, LayoutDashboard, Hammer } from 'lucide-react';
 
 export default function Header() {
   const { data: session, status } = useSession();
@@ -88,7 +88,14 @@ export default function Header() {
                       </div>
                     </div>
                   </div>
-                  <div className="p-2">
+                  <div className="p-2 space-y-1">
+                    <Link
+                      href="/admin"
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-300 hover:text-white hover:bg-zinc-800/50 rounded-lg transition"
+                    >
+                      <Hammer size={16} />
+                      Admin Panel
+                    </Link>
                     <button
                       onClick={() => signOut()}
                       className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-300 hover:text-white hover:bg-zinc-800/50 rounded-lg transition"
