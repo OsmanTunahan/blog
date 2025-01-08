@@ -3,8 +3,7 @@ import { MetadataRoute } from 'next';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
-                   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+    const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || 'http://localhost:3000';
 
     let posts: Post[] = [];
     try {
@@ -15,7 +14,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     // Blog post URLs
     const postUrls = posts.map((post: Post) => ({
-      url: `${baseUrl}/p/${post.slug}`,
+      url: `${BASE_URL}/p/${post.slug}`,
       lastModified: new Date(post.date),
       changeFrequency: 'weekly' as const,
       priority: 0.8,
@@ -24,13 +23,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Static URLs
     const staticUrls = [
       {
-        url: baseUrl,
+        url: BASE_URL,
         lastModified: new Date(),
         changeFrequency: 'daily' as const,
         priority: 1,
       },
       {
-        url: `${baseUrl}/auth/signin`,
+        url: `${BASE_URL}/auth/signin`,
         lastModified: new Date(),
         changeFrequency: 'monthly' as const,
         priority: 0.3,
@@ -40,12 +39,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return [...staticUrls, ...postUrls];
   } catch (error) {
     console.error('Error generating sitemap:', error);
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 
-                   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+    const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || 'http://localhost:3000';
     
     return [
       {
-        url: baseUrl,
+        url: BASE_URL,
         lastModified: new Date(),
         changeFrequency: 'daily' as const,
         priority: 1,

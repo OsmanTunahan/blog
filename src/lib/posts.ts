@@ -23,17 +23,7 @@ function calculateReadingTime(content: string): string {
   return `${minutes} min`;
 }
 
-function getBaseUrl(): string {
-  if (process.env.NEXT_PUBLIC_APP_URL) {
-    return process.env.NEXT_PUBLIC_APP_URL;
-  }
-  
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
-  }
-  
-  return process.env.NEXTAUTH_URL || 'http://localhost:3000';
-}
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || 'http://localhost:3000';
 
 export async function getAllPosts(): Promise<Post[]> {
   try {
@@ -42,8 +32,7 @@ export async function getAllPosts(): Promise<Post[]> {
       return [];
     }
 
-    const baseUrl = getBaseUrl();
-    const response = await fetch(`${baseUrl}/api/posts`, {
+    const response = await fetch(`${BASE_URL}/api/posts`, {
       next: { revalidate: 3600 },
       headers: {
         'Accept': 'application/json',
@@ -80,8 +69,7 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
       return null;
     }
 
-    const baseUrl = getBaseUrl();
-    const response = await fetch(`${baseUrl}/api/posts?slug=${slug}`, {
+    const response = await fetch(`${BASE_URL}/api/posts?slug=${slug}`, {
       next: { revalidate: 3600 },
       headers: {
         'Accept': 'application/json',
@@ -111,8 +99,7 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
 }
 
 export async function createPost(postData: Omit<Post, 'readTime'>): Promise<Post> {
-  const baseUrl = getBaseUrl();
-  const response = await fetch(`${baseUrl}/api/posts`, {
+  const response = await fetch(`${BASE_URL}/api/posts`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(postData)
@@ -130,8 +117,7 @@ export async function createPost(postData: Omit<Post, 'readTime'>): Promise<Post
 }
 
 export async function updatePost(slug: string, postData: Partial<Post>): Promise<Post | null> {
-  const baseUrl = getBaseUrl();
-  const response = await fetch(`${baseUrl}/api/posts?slug=${slug}`, {
+  const response = await fetch(`${BASE_URL}/api/posts?slug=${slug}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(postData)
@@ -149,8 +135,7 @@ export async function updatePost(slug: string, postData: Partial<Post>): Promise
 }
 
 export async function deletePost(slug: string): Promise<boolean> {
-  const baseUrl = getBaseUrl();
-  const response = await fetch(`${baseUrl}/api/posts?slug=${slug}`, {
+  const response = await fetch(`${BASE_URL}/api/posts?slug=${slug}`, {
     method: 'DELETE'
   });
 
