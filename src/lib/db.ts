@@ -8,34 +8,28 @@ if (!MONGODB_URI) {
   );
 }
 
-interface MongooseCache {
+interface GlobalMongoose {
   conn: typeof mongoose | null;
   promise: Promise<typeof mongoose> | null;
 }
 
-declare global {
-  var mongoose: { conn: null | typeof mongoose; promise: null | Promise<typeof mongoose> } | undefined;
-}
-
-let cached: MongooseCache = global.mongoose || { conn: null, promise: null };
-
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+if (!(global as any).mongoose) {
+  (global as any).mongoose = { conn: null, promise: null } as GlobalMongoose;
 }
 
 export async function connectDB() {
+  const cached = (global as any).mongoose as GlobalMongoose;
+
   if (cached.conn) {
     return cached.conn;
   }
 
   if (!cached.promise) {
     const opts = {
-      bufferCommands: false,
+      dbName: "blog",
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
-      return mongoose;
-    });
+    cached.promise = mongoose.connect(MONGODB_URI!, opts).then(() => mongoose);
   }
 
   try {
