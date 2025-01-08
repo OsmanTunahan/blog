@@ -1,15 +1,14 @@
 import Link from "next/link";
-import { ArrowRight, Calendar, Clock, Github, Linkedin, Twitter } from "lucide-react";
+import { ArrowRight, Calendar, Clock, Github, Linkedin, Twitter, PenSquare } from "lucide-react";
 import { getAllPosts } from "@/lib/posts";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 
 export default async function Home() {
-  const posts = getAllPosts();
+  const posts = await getAllPosts();
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -54,56 +53,69 @@ export default async function Home() {
               </p>
             </div>
             
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
-              {posts.map((post) => (
-                <Link 
-                  href={`/p/${post.slug}`}
-                  key={post.slug} 
-                  className="group relative overflow-hidden"
-                >
-                  <Card className="h-full bg-zinc-900/50 border-zinc-800/50 backdrop-blur-sm hover:bg-zinc-800/50 transition-all duration-300">
-                    <CardHeader className="space-y-4">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary" className="rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors">
-                          {post.category}
-                        </Badge>
-                      </div>
-                      <h3 className="text-xl font-semibold group-hover:text-primary transition-colors line-clamp-2">
-                        {post.title}
-                      </h3>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {post.excerpt}
-                      </p>
-                    </CardContent>
-                    <CardFooter>
-                      <div className="w-full pt-4 border-t border-zinc-800">
-                        <div className="flex items-center justify-between text-xs text-zinc-400">
-                          <span className="flex items-center gap-1.5">
-                            <Calendar className="w-3.5 h-3.5" />
-                            {new Date(post.date).toLocaleDateString('tr-TR', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric'
-                            })}
-                          </span>
-                          <span className="flex items-center gap-1.5">
-                            <Clock className="w-3.5 h-3.5" />
-                            {post.readTime}
-                          </span>
+            {posts.length > 0 ? (
+              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
+                {posts.map((post) => (
+                  <Link 
+                    href={`/p/${post.slug}`}
+                    key={post.slug} 
+                    className="group relative overflow-hidden"
+                  >
+                    <Card className="h-full bg-zinc-900/50 border-zinc-800/50 backdrop-blur-sm hover:bg-zinc-800/50 transition-all duration-300">
+                      <CardHeader className="space-y-4">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="secondary" className="rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors">
+                            {post.category}
+                          </Badge>
                         </div>
-                      </div>
-                    </CardFooter>
-                  </Card>
-                </Link>
-              ))}
-            </div>
+                        <h3 className="text-xl font-semibold group-hover:text-primary transition-colors line-clamp-2">
+                          {post.title}
+                        </h3>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {post.excerpt}
+                        </p>
+                      </CardContent>
+                      <CardFooter>
+                        <div className="w-full pt-4 border-t border-zinc-800">
+                          <div className="flex items-center justify-between text-xs text-zinc-400">
+                            <span className="flex items-center gap-1.5">
+                              <Calendar className="w-3.5 h-3.5" />
+                              {new Date(post.date).toLocaleDateString('tr-TR', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                              })}
+                            </span>
+                            <span className="flex items-center gap-1.5">
+                              <Clock className="w-3.5 h-3.5" />
+                              {post.readTime}
+                            </span>
+                          </div>
+                        </div>
+                      </CardFooter>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <Card className="max-w-2xl mx-auto border-dashed">
+                <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                  <div className="rounded-full bg-zinc-900/50 p-3 mb-4">
+                    <PenSquare className="w-6 h-6 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">No Posts Yet</h3>
+                  <p className="text-muted-foreground mb-4">
+                    There are no blog posts published yet. Check back later for new content.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </section>
       </main>
 
-      {/* Footer */}
       <Footer />
     </div>
   );
