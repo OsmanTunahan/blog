@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSession, signOut } from 'next-auth/react';
 import { useState, useRef, useEffect } from 'react';
-import { ChevronDown, LogOut, LayoutDashboard, Hammer } from 'lucide-react';
+import { ChevronDown, LogOut, Hammer } from 'lucide-react';
 
 export default function Header() {
   const { data: session, status } = useSession();
