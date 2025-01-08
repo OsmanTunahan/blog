@@ -31,7 +31,7 @@ export default function Header() {
             href="https://osmantunahan.com.tr" 
             className="hover:text-zinc-400 transition"
           >
-            Hakkımda
+            About Me
           </Link>
           {status === 'loading' ? (
             <div className="h-8 w-8 bg-zinc-800 rounded-full animate-pulse" />
@@ -101,7 +101,7 @@ export default function Header() {
                       className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-300 hover:text-white hover:bg-zinc-800/50 rounded-lg transition"
                     >
                       <LogOut size={16} />
-                      Çıkış Yap
+                      Logout
                     </button>
                   </div>
                 </div>

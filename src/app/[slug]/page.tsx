@@ -110,7 +110,7 @@ export default async function BlogPost({ params }: Props) {
               {post.title}
             </h1>
             <p className="text-zinc-400">
-              Yazar: {post.author}
+              Author: {post.author}
             </p>
           </div>
 

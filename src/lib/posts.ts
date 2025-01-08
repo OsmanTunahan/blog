@@ -26,7 +26,7 @@ function calculateReadingTime(content: string): string {
   const words = cleanContent.trim().split(/\s+/).length;
   const minutes = Math.ceil(words / WORDS_PER_MINUTE);
   
-  return `${minutes} dk`;
+  return `${minutes} min`;
 }
 
 export function getAllPosts(): Post[] {

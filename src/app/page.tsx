@@ -62,7 +62,7 @@ export default async function Home() {
                     href={`/${post.slug}`} 
                     className="inline-flex items-center gap-2 text-zinc-300 hover:text-white transition"
                   >
-                    Devamını Oku
+                    Read more
                     <ArrowRight size={16} />
                   </Link>
                 </article>
