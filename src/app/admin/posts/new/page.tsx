@@ -27,14 +27,20 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 
 export default function NewPostPage() {
+  const router = useRouter();
+  const { data: session } = useSession();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [tags, setTags] = useState("");
   const [category, setCategory] = useState("");
   const [view, setView] = useState<"write" | "preview">("write");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
 
   const tools = [
     { icon: Bold, action: "bold", tooltip: "Bold" },
@@ -118,6 +124,52 @@ export default function NewPostPage() {
     </div>
   );
 
+  const handlePublish = async () => {
+    if (!title || !content || !category) {
+      toast.error("Title, content, and category are required");
+      return;
+    }
+
+    try {
+      setIsPublishing(true);
+      const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      const date = new Date().toISOString().split('T')[0];
+      const readTime = Math.ceil(content.split(/\s+/).length / 200) + " min";
+      const excerpt = content.slice(0, 300).replace(/[#*[\]`]/g, '');
+      const tagArray = tags.split(',').map(tag => tag.trim()).filter(Boolean);
+
+      const response = await fetch('/api/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title,
+          content,
+          category,
+          tags: tagArray,
+          slug,
+          date,
+          readTime,
+          excerpt,
+          author: session?.user?.name || "Admin"
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to publish post');
+      }
+
+      toast.success("Post published successfully!");
+      router.push('/admin/posts');
+    } catch (error: any) {
+      toast.error("Failed to publish post");
+      console.error(error.message || 'Unknown error occurred');
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#111111] text-white">
       <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-white/10 bg-[#111111] px-4 md:px-6">
@@ -152,14 +204,19 @@ export default function NewPostPage() {
               </SheetContent>
             </Sheet>
           </div>
-          <div className="hidden sm:flex sm:items-center sm:gap-2">
+          {/* <div className="hidden sm:flex sm:items-center sm:gap-2">
             <Button variant="outline" size="sm" className="bg-white/5 text-white border-white/10 hover:bg-white/10">
               <Pencil className="mr-2 h-4 w-4" />
               Save Draft
             </Button>
-          </div>
-          <Button size="sm" className="bg-blue-600 text-white hover:bg-blue-700">
-            Publish
+          </div> */}
+          <Button 
+            size="sm" 
+            className="bg-blue-600 text-white hover:bg-blue-700"
+            onClick={handlePublish}
+            disabled={isPublishing}
+          >
+            {isPublishing ? "Publishing..." : "Publish"}
           </Button>
         </div>
       </header>

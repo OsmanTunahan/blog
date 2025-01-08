@@ -7,7 +7,6 @@ export interface IPost extends Document {
   content: string;
   category: string;
   author: string;
-  readTime: string;
   excerpt: string;
   tags: string[];
   createdAt: Date;
@@ -43,11 +42,6 @@ const PostSchema = new Schema<IPost>({
   author: {
     type: String,
     required: [true, 'Author is required'],
-    trim: true,
-  },
-  readTime: {
-    type: String,
-    required: [true, 'Read time is required'],
     trim: true,
   },
   excerpt: {

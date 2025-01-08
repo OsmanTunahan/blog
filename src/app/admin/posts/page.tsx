@@ -85,7 +85,7 @@ export default function PostsPage() {
     }
 
     try {
-      const response = await fetch(`/api/posts/${slug}`, {
+      const response = await fetch(`/api/posts?slug=${slug}`, {
         method: 'DELETE',
       });
 
