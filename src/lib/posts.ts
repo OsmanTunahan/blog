@@ -1,6 +1,3 @@
-import { connectDB } from './db';
-import Post, { IPost } from '@/models/Post';
-
 export interface Post {
   slug: string;
   title: string;
@@ -27,86 +24,69 @@ function calculateReadingTime(content: string): string {
 }
 
 export async function getAllPosts(): Promise<Post[]> {
-  await connectDB();
-  const posts = await Post.find({}).sort({ createdAt: -1 });
+  const response = await fetch('/api/posts', { next: { revalidate: 3600 } });
+  const posts = await response.json();
   
-  return posts.map(post => ({
-    slug: post.slug,
-    title: post.title,
-    date: post.date,
-    content: post.content,
-    category: post.category,
-    author: post.author,
-    readTime: calculateReadingTime(post.content),
-    excerpt: post.excerpt
+  return posts.map((post: any) => ({
+    ...post,
+    readTime: calculateReadingTime(post.content)
   }));
 }
 
 export async function getPostBySlug(slug: string): Promise<Post | null> {
-  await connectDB();
-  const post = await Post.findOne({ slug });
-
-  if (!post) {
+  const response = await fetch(`/api/posts?slug=${slug}`, { next: { revalidate: 3600 } });
+  
+  if (!response.ok) {
     return null;
   }
 
+  const post = await response.json();
   return {
-    slug: post.slug,
-    title: post.title,
-    date: post.date,
-    content: post.content,
-    category: post.category,
-    author: post.author,
-    readTime: calculateReadingTime(post.content),
-    excerpt: post.excerpt
+    ...post,
+    readTime: calculateReadingTime(post.content)
   };
 }
 
 export async function createPost(postData: Omit<Post, 'readTime'>): Promise<Post> {
-  await connectDB();
-  const post = await Post.create({
-    ...postData,
-    createdAt: new Date()
+  const response = await fetch('/api/posts', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(postData)
   });
 
+  if (!response.ok) {
+    throw new Error('Failed to create post');
+  }
+
+  const post = await response.json();
   return {
-    slug: post.slug,
-    title: post.title,
-    date: post.date,
-    content: post.content,
-    category: post.category,
-    author: post.author,
-    readTime: calculateReadingTime(post.content),
-    excerpt: post.excerpt
+    ...post,
+    readTime: calculateReadingTime(post.content)
   };
 }
 
 export async function updatePost(slug: string, postData: Partial<Post>): Promise<Post | null> {
-  await connectDB();
-  const post = await Post.findOneAndUpdate(
-    { slug },
-    { $set: postData },
-    { new: true, runValidators: true }
-  );
+  const response = await fetch(`/api/posts?slug=${slug}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(postData)
+  });
 
-  if (!post) {
+  if (!response.ok) {
     return null;
   }
 
+  const post = await response.json();
   return {
-    slug: post.slug,
-    title: post.title,
-    date: post.date,
-    content: post.content,
-    category: post.category,
-    author: post.author,
-    readTime: calculateReadingTime(post.content),
-    excerpt: post.excerpt
+    ...post,
+    readTime: calculateReadingTime(post.content)
   };
 }
 
 export async function deletePost(slug: string): Promise<boolean> {
-  await connectDB();
-  const result = await Post.findOneAndDelete({ slug });
-  return !!result;
+  const response = await fetch(`/api/posts?slug=${slug}`, {
+    method: 'DELETE'
+  });
+
+  return response.ok;
 }

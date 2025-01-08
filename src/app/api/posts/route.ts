@@ -1,62 +1,113 @@
-import { NextResponse } from 'next/server';
-import { getPostBySlug } from '@/lib/posts';
-import fs from 'fs';
-import path from 'path';
-import matter from 'gray-matter';
+import { NextRequest, NextResponse } from 'next/server';
+import Post from '@/models/Post';
+import { connectDB } from '@/lib/db';
+import { revalidatePath } from 'next/cache';
 
-const postsDirectory = path.join(process.cwd(), 'src/posts');
-
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const slug = searchParams.get('slug');
-
-  if (!slug) {
-    return new NextResponse('Slug is required', { status: 400 });
-  }
-
+export async function GET(request: NextRequest) {
   try {
-    const post = getPostBySlug(slug);
-    
-    if (!post) {
-      return new NextResponse('Post not found', { status: 404 });
+    await connectDB();
+    const { searchParams } = new URL(request.url);
+    const slug = searchParams.get('slug');
+
+    if (slug) {
+      const post = await Post.findOne({ slug });
+      if (!post) {
+        return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+      }
+      return NextResponse.json(post);
     }
 
-    return NextResponse.json(post);
+    const posts = await Post.find({}).sort({ createdAt: -1 });
+    return NextResponse.json(posts);
   } catch (error) {
-    console.error('Error fetching post:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to fetch posts' },
+      { status: 500 }
+    );
   }
 }
 
-export async function PUT(request: Request) {
+export async function POST(request: Request) {
   try {
-    const { slug, ...post } = await request.json();
+    const body = await request.json();
+    await connectDB();
 
-    if (!slug) {
-      return new NextResponse('Slug is required', { status: 400 });
-    }
+    const post = await Post.create({
+      ...body,
+      createdAt: new Date()
+    });
 
-    const filePath = path.join(postsDirectory, `${slug}.md`);
-
-    if (!fs.existsSync(filePath)) {
-      return new NextResponse('Post not found', { status: 404 });
-    }
-
-    const { data: existingFrontmatter } = matter(fs.readFileSync(filePath, 'utf8'));
+    revalidatePath('/');
+    revalidatePath('/admin/posts');
     
-    const frontmatter = {
-      ...existingFrontmatter,
-      title: post.title,
-      category: post.category,
-      tags: post.tags,
-    };
+    return NextResponse.json(post);
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error.message || 'Failed to create post' },
+      { status: 500 }
+    );
+  }
+}
 
-    const fileContent = matter.stringify(post.content, frontmatter);
-    fs.writeFileSync(filePath, fileContent);
+export async function PUT(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const slug = searchParams.get('slug');
+    
+    if (!slug) {
+      return NextResponse.json({ error: 'Slug is required' }, { status: 400 });
+    }
+
+    const body = await request.json();
+    await connectDB();
+
+    const post = await Post.findOneAndUpdate(
+      { slug },
+      { $set: body },
+      { new: true, runValidators: true }
+    );
+
+    if (!post) {
+      return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+    }
+
+    revalidatePath('/');
+    revalidatePath('/admin/posts');
+    revalidatePath(`/p/${slug}`);
+
+    return NextResponse.json(post);
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error.message || 'Failed to update post' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const slug = searchParams.get('slug');
+    
+    if (!slug) {
+      return NextResponse.json({ error: 'Slug is required' }, { status: 400 });
+    }
+
+    await connectDB();
+    const post = await Post.findOneAndDelete({ slug });
+
+    if (!post) {
+      return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+    }
+
+    revalidatePath('/');
+    revalidatePath('/admin/posts');
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error updating post:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to delete post' },
+      { status: 500 }
+    );
   }
 } 
