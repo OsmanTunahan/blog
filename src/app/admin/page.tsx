@@ -5,8 +5,15 @@ import { FileText, PlusCircle, Settings, TrendingUp, Calendar, ArrowUpRight, Che
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 
+interface Post {
+  slug: string;
+  title: string;
+  date: string;
+  category: string;
+}
+
 export default async function AdminDashboard() {
-  const posts = getAllPosts();
+  const posts = await getAllPosts();
   const totalPosts = posts.length;
 
   return (
@@ -34,7 +41,7 @@ export default async function AdminDashboard() {
           <CardContent>
             <div className="text-2xl font-bold">{totalPosts}</div>
             <p className="text-xs text-muted-foreground">
-              +2.1% from last month
+              +0% from last month
             </p>
           </CardContent>
         </Card>
@@ -86,7 +93,7 @@ export default async function AdminDashboard() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {posts.slice(0, 5).map((post) => (
+            {posts.slice(0, 5).map((post: Post) => (
               <Link 
                 key={post.slug}
                 href={`/admin/posts/edit/${post.slug}`}
