@@ -27,11 +27,6 @@ const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || 
 
 export async function getAllPosts(): Promise<Post[]> {
   try {
-    if (process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_SITE_URL) {
-      console.warn('NEXT_PUBLIC_SITE_URL is not set in production. Returning empty posts array.');
-      return [];
-    }
-
     const response = await fetch(`${BASE_URL}/api/posts`, {
       next: { revalidate: 3600 },
       headers: {
@@ -64,11 +59,6 @@ export async function getAllPosts(): Promise<Post[]> {
 
 export async function getPostBySlug(slug: string): Promise<Post | null> {
   try {
-    if (process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_SITE_URL) {
-      console.warn('NEXT_PUBLIC_SITE_URL is not set in production. Returning null for post.');
-      return null;
-    }
-
     const response = await fetch(`${BASE_URL}/api/posts?slug=${slug}`, {
       next: { revalidate: 3600 },
       headers: {

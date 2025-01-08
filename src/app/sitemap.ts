@@ -3,7 +3,7 @@ import { MetadataRoute } from 'next';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
-    const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
     let posts: Post[] = [];
     try {
@@ -39,7 +39,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return [...staticUrls, ...postUrls];
   } catch (error) {
     console.error('Error generating sitemap:', error);
-    const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     
     return [
       {
