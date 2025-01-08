@@ -1,11 +1,15 @@
-import { getPostBySlug } from "@/lib/posts";
-import { notFound } from "next/navigation";
-import { Calendar, Clock } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
+import { ArrowLeft, Calendar, Clock } from "lucide-react";
+import { MDXRemote } from 'next-mdx-remote/rsc';
+import { getPostBySlug } from '@/lib/posts';
+import { notFound } from 'next/navigation';
+import type { MDXComponents } from 'mdx/types';
+import rehypePrettyCode from 'rehype-pretty-code';
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import MarkdownPreview from "@uiw/react-markdown-preview";
-import { Metadata, ResolvingMetadata } from "next";
+import { generateMetadata } from './metadata';
+
+export { generateMetadata };
 
 interface Props {
   params: {
@@ -13,87 +17,124 @@ interface Props {
   };
 }
 
-export async function generateMetadata(
-  { params }: Props,
-  parent: ResolvingMetadata
-): Promise<Metadata> {
-  const post = await getPostBySlug(params.slug);
+const options = {
+  theme: 'one-dark-pro',
+  keepBackground: true,
+  onVisitLine(node: any) {
+    if (node.children.length === 0) {
+      node.children = [{ type: 'text', value: ' ' }];
+    }
+  },
+  onVisitHighlightedLine(node: any) {
+    node.properties.className.push('highlighted');
+  },
+  onVisitHighlightedWord(node: any) {
+    node.properties.className = ['word'];
+  },
+};
 
-  if (!post) {
-    return {
-      title: 'Post Not Found',
-    };
-  }
+const components: MDXComponents = {
+  pre: ({ children, ...props }) => (
+    <pre {...props} className="relative">
+      {children}
+    </pre>
+  ),
+  code: ({ children, className }) => {
+    const language = className?.replace('language-', '');
+    return (
+      <div className="relative group">
+        {language && (
+          <div className="absolute right-0 top-0 px-3 py-2 text-xs text-zinc-400 bg-zinc-800 rounded-bl">
+            {language}
+          </div>
+        )}
+        <pre className="overflow-x-auto p-4 bg-zinc-900 rounded-lg text-sm">
+          <code className={className}>{children}</code>
+        </pre>
+      </div>
+    );
+  },
+  h1: ({ children }) => (
+    <h1 className="text-3xl font-bold mt-8 mb-4">{children}</h1>
+  ),
+  h2: ({ children }) => (
+    <h2 className="text-2xl font-semibold mt-8 mb-4">{children}</h2>
+  ),
+  p: ({ children }) => (
+    <p className="mb-4 text-zinc-300 leading-relaxed">{children}</p>
+  )
+};
 
-  return {
-    title: post.title,
-    description: post.excerpt,
-    openGraph: {
-      title: post.title,
-      description: post.excerpt,
-      type: 'article',
-      publishedTime: post.date,
-      authors: [post.author],
-      tags: [post.category],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: post.title,
-      description: post.excerpt,
-    },
-  };
-}
-
-export default async function PostPage({ params }: Props) {
-  const post = await getPostBySlug(params.slug);
+export default async function BlogPost({ params }: Props) {
+  const post = await getPostBySlug((await params).slug);
 
   if (!post) {
     notFound();
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen">
       <Header />
 
-      <main className="flex-1">
-        <article className="container max-w-3xl px-4 py-12 mx-auto">
-          <header className="space-y-8 text-center">
-            <div className="space-y-4">
-              <Badge
-                variant="secondary"
-                className="bg-blue-500/10 text-blue-500 hover:bg-blue-500/20"
-              >
+      {/* Blog Post Content */}
+      <main className="flex-1 pt-24 pb-16 px-4">
+        <article className="container mx-auto max-w-3xl">
+          {/* Back Button */}
+          <Link 
+            href="/"
+            className="inline-flex items-center gap-2 text-zinc-400 hover:text-white mb-8 transition"
+          >
+            <ArrowLeft size={16} />
+            Go Back
+          </Link>
+
+          {/* Post Meta */}
+          <div className="mb-8 pb-8 border-b border-zinc-800">
+            <div className="flex flex-wrap gap-4 items-center mb-4">
+              <span className="text-sm px-3 py-1 rounded-full bg-zinc-800 text-zinc-300">
                 {post.category}
-              </Badge>
-              <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
-                {post.title}
-              </h1>
-            </div>
-
-            <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                <time dateTime={post.date}>
-                  {new Date(post.date).toLocaleDateString("tr-TR", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
+              </span>
+              <div className="flex items-center gap-4 text-sm text-zinc-400">
+                <span className="flex items-center gap-1">
+                  <Calendar size={14} />
+                  {new Date(post.date).toLocaleDateString('tr-TR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
                   })}
-                </time>
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                <span>{post.readTime}</span>
+                </span>
+                <span className="flex items-center gap-1">
+                  <Clock size={14} />
+                  {post.readTime}
+                </span>
               </div>
             </div>
-          </header>
+            <h1 className="text-3xl sm:text-4xl font-bold mb-4">
+              {post.title}
+            </h1>
+            <p className="text-zinc-400">
+              Author: {post.author}
+            </p>
+          </div>
 
-          <div className="mt-12 prose prose-invert prose-zinc max-w-none">
-            <MarkdownPreview source={post.content} />
+          {/* Post Content */}
+          <div className="prose prose-invert prose-zinc max-w-none [&_pre]:!bg-zinc-900 [&_pre]:!p-0 [&_code]:!bg-transparent">
+            <MDXRemote 
+              source={post.content} 
+              components={components}
+              options={{
+                mdxOptions: {
+                  rehypePlugins: [
+                    [rehypePrettyCode, options]
+                  ]
+                }
+              }} 
+            />
           </div>
         </article>
       </main>
-
+      
+      {/* Footer */}
       <Footer />
     </div>
   );
