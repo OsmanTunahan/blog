@@ -82,7 +82,7 @@ export default async function BlogPost({ params }: Props) {
             className="inline-flex items-center gap-2 text-zinc-400 hover:text-white mb-8 transition"
           >
             <ArrowLeft size={16} />
-            Geri Dön
+            Go Back
           </Link>
 
           {/* Post Meta */}
