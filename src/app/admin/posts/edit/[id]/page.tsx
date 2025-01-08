@@ -95,13 +95,12 @@ export default function EditPostPage() {
 
   const handleUpdate = async () => {
     try {
-      const response = await fetch('/api/posts', {
+      const response = await fetch(`/api/posts?slug=${params.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          slug: params.id,
           title,
           content,
           category,
@@ -109,7 +108,10 @@ export default function EditPostPage() {
         }),
       });
 
-      if (!response.ok) throw new Error('Failed to update post');
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to update post');
+      }
       router.push('/admin/posts');
     } catch (error) {
       console.error('Error updating post:', error);

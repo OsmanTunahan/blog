@@ -23,7 +23,7 @@ export async function generateMetadata(
   const previousImages = (await parent).openGraph?.images || [];
 
   return {
-    title: post.title,
+    title: `Osman Tunahan ARIKAN - ${post.title}`,
     description: post.excerpt,
     authors: [{ name: post.author }],
     keywords: [post.category],
