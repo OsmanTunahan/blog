@@ -45,7 +45,7 @@ export default async function AdminDashboard() {
           </CardHeader>
           <CardContent className="space-y-2">
             <Button asChild className="w-full">
-              <Link href="/admin/new">
+              <Link href="/admin/posts/new">
                 <PlusCircle className="mr-2 h-4 w-4" />
                 New Post
               </Link>
@@ -64,7 +64,7 @@ export default async function AdminDashboard() {
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-base font-medium">
                     <Link 
-                      href={`/admin/edit/${post.slug}`}
+                      href={`/admin/posts/edit/${post.slug}`}
                       className="hover:underline"
                     >
                       {post.title}
