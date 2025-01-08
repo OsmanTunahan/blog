@@ -1,17 +1,17 @@
 import { Metadata, ResolvingMetadata } from "next";
 import { getPostBySlug } from "@/lib/posts";
 
-interface Props {
-  params: {
-    slug: string;
-  };
+type Props = {
+  params: { slug: string }
+  searchParams: { [key: string]: string | string[] | undefined }
 }
 
 export async function generateMetadata(
   { params }: Props,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const post = await getPostBySlug(params.slug);
+  const slug = (await params).slug;
+  const post = await getPostBySlug(slug);
 
   if (!post) {
     return {
