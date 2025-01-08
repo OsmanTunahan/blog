@@ -55,8 +55,6 @@ const PostSchema = new Schema<IPost>({
   versionKey: false,
 });
 
-PostSchema.index({ slug: 1 });
-PostSchema.index({ category: 1 });
 PostSchema.index({ createdAt: -1 });
 
 export default mongoose.models.Post || mongoose.model<IPost>('Post', PostSchema);
