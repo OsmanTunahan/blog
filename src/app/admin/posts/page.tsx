@@ -1,3 +1,5 @@
+"use client";
+
 import { getAllPosts } from "@/lib/posts";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,9 +45,61 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
-export default async function PostsPage() {
-  const posts = await getAllPosts();
+interface Post {
+  slug: string;
+  title: string;
+  date: string;
+  category: string;
+  excerpt: string;
+}
+
+export default function PostsPage() {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const fetchPosts = async () => {
+    try {
+      const response = await fetch('/api/posts');
+      const data = await response.json();
+      setPosts(data);
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+      toast.error('Failed to fetch posts');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeletePost = async (slug: string) => {
+    if (!confirm('Are you sure you want to delete this post?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/posts/${slug}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete post');
+      }
+
+      toast.success('Post deleted successfully');
+      fetchPosts();
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      toast.error('Failed to delete post');
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -174,102 +228,201 @@ export default async function PostsPage() {
         </CardHeader>
 
         <CardContent>
-          {/* Desktop Table View */}
-          <div className="hidden md:block rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[400px]">
-                    <Button
-                      variant="ghost"
-                      className="flex items-center gap-1 hover:text-primary"
-                    >
-                      Title
-                      <ArrowUpDown className="h-3 w-3" />
-                    </Button>
-                  </TableHead>
-                  <TableHead>
-                    <Button
-                      variant="ghost"
-                      className="flex items-center gap-1 hover:text-primary"
-                    >
-                      Category
-                      <ArrowUpDown className="h-3 w-3" />
-                    </Button>
-                  </TableHead>
-                  <TableHead>
-                    <Button
-                      variant="ghost"
-                      className="flex items-center gap-1 hover:text-primary"
-                    >
-                      Date
-                      <ArrowUpDown className="h-3 w-3" />
-                    </Button>
-                  </TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+          {isLoading ? (
+            <div className="flex items-center justify-center h-32">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <>
+              {/* Desktop Table View */}
+              <div className="hidden md:block rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[400px]">
+                        <Button
+                          variant="ghost"
+                          className="flex items-center gap-1 hover:text-primary"
+                        >
+                          Title
+                          <ArrowUpDown className="h-3 w-3" />
+                        </Button>
+                      </TableHead>
+                      <TableHead>
+                        <Button
+                          variant="ghost"
+                          className="flex items-center gap-1 hover:text-primary"
+                        >
+                          Category
+                          <ArrowUpDown className="h-3 w-3" />
+                        </Button>
+                      </TableHead>
+                      <TableHead>
+                        <Button
+                          variant="ghost"
+                          className="flex items-center gap-1 hover:text-primary"
+                        >
+                          Date
+                          <ArrowUpDown className="h-3 w-3" />
+                        </Button>
+                      </TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {posts.map((post) => (
+                      <TableRow key={post.slug}>
+                        <TableCell className="font-medium">{post.title}</TableCell>
+                        <TableCell>
+                          <Badge
+                            variant="secondary"
+                            className="bg-blue-500/10 text-blue-500 hover:bg-blue-500/20"
+                          >
+                            {post.category}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {new Date(post.date).toLocaleDateString("tr-TR", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant="secondary"
+                            className="bg-green-500/10 text-green-500 hover:bg-green-500/20"
+                          >
+                            Published
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" className="h-8 w-8 p-0">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem asChild>
+                                <Link
+                                  href={`/admin/posts/edit/${post.slug}`}
+                                  className="flex items-center cursor-pointer"
+                                >
+                                  <Pencil className="mr-2 h-4 w-4" />
+                                  Edit
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="text-red-600 cursor-pointer"
+                                onClick={() => handleDeletePost(post.slug)}
+                              >
+                                <Trash className="mr-2 h-4 w-4" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+
+                    {posts.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={5} className="h-24 text-center">
+                          <div className="flex flex-col items-center justify-center gap-2">
+                            <CardDescription>No posts found</CardDescription>
+                            <Button asChild variant="outline" size="sm">
+                              <Link
+                                href="/admin/posts/new"
+                                className="flex items-center gap-2"
+                              >
+                                <PlusCircle className="h-4 w-4" />
+                                Create your first post
+                              </Link>
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="grid gap-4 md:hidden">
                 {posts.map((post) => (
-                  <TableRow key={post.slug}>
-                    <TableCell className="font-medium">{post.title}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="secondary"
-                        className="bg-blue-500/10 text-blue-500 hover:bg-blue-500/20"
-                      >
-                        {post.category}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {new Date(post.date).toLocaleDateString("tr-TR", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="secondary"
-                        className="bg-green-500/10 text-green-500 hover:bg-green-500/20"
-                      >
-                        Published
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem asChild>
-                            <Link
-                              href={`/admin/posts/edit/${post.slug}`}
-                              className="flex items-center cursor-pointer"
+                  <Card key={post.slug} className="overflow-hidden">
+                    <CardContent className="p-4">
+                      <div className="space-y-3">
+                        <div className="flex items-start justify-between">
+                          <h3 className="font-semibold">{post.title}</h3>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" className="h-8 w-8 p-0">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem asChild>
+                                <Link
+                                  href={`/admin/posts/edit/${post.slug}`}
+                                  className="flex items-center cursor-pointer"
+                                >
+                                  <Pencil className="mr-2 h-4 w-4" />
+                                  Edit
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="text-red-600 cursor-pointer"
+                                onClick={() => handleDeletePost(post.slug)}
+                              >
+                                <Trash className="mr-2 h-4 w-4" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                        <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <Tag className="h-4 w-4" />
+                            <Badge
+                              variant="secondary"
+                              className="bg-blue-500/10 text-blue-500 hover:bg-blue-500/20"
                             >
-                              <Pencil className="mr-2 h-4 w-4" />
-                              Edit
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600">
-                            <Trash className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
+                              {post.category}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Calendar className="h-4 w-4" />
+                            <span>
+                              {new Date(post.date).toLocaleDateString("tr-TR", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              })}
+                            </span>
+                          </div>
+                          <Badge
+                            variant="secondary"
+                            className="bg-green-500/10 text-green-500 hover:bg-green-500/20"
+                          >
+                            Published
+                          </Badge>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
 
                 {posts.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center">
-                      <div className="flex flex-col items-center justify-center gap-2">
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex flex-col items-center justify-center gap-2 text-center">
                         <CardDescription>No posts found</CardDescription>
                         <Button asChild variant="outline" size="sm">
                           <Link
@@ -281,97 +434,12 @@ export default async function PostsPage() {
                           </Link>
                         </Button>
                       </div>
-                    </TableCell>
-                  </TableRow>
+                    </CardContent>
+                  </Card>
                 )}
-              </TableBody>
-            </Table>
-          </div>
-
-          {/* Mobile Card View */}
-          <div className="grid gap-4 md:hidden">
-            {posts.map((post) => (
-              <Card key={post.slug} className="overflow-hidden">
-                <CardContent className="p-4">
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between">
-                      <h3 className="font-semibold">{post.title}</h3>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem asChild>
-                            <Link
-                              href={`/admin/posts/edit/${post.slug}`}
-                              className="flex items-center cursor-pointer"
-                            >
-                              <Pencil className="mr-2 h-4 w-4" />
-                              Edit
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600">
-                            <Trash className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                    <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Tag className="h-4 w-4" />
-                        <Badge
-                          variant="secondary"
-                          className="bg-blue-500/10 text-blue-500 hover:bg-blue-500/20"
-                        >
-                          {post.category}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        <span>
-                          {new Date(post.date).toLocaleDateString("tr-TR", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
-                        </span>
-                      </div>
-                      <Badge
-                        variant="secondary"
-                        className="bg-green-500/10 text-green-500 hover:bg-green-500/20"
-                      >
-                        Published
-                      </Badge>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-
-            {posts.length === 0 && (
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex flex-col items-center justify-center gap-2 text-center">
-                    <CardDescription>No posts found</CardDescription>
-                    <Button asChild variant="outline" size="sm">
-                      <Link
-                        href="/admin/posts/new"
-                        className="flex items-center gap-2"
-                      >
-                        <PlusCircle className="h-4 w-4" />
-                        Create your first post
-                      </Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
     </div>
