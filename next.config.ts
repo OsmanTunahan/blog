@@ -16,6 +16,19 @@ const nextConfig = {
     VERCEL_URL: process.env.VERCEL_URL,
   },
   output: 'standalone',
+  async headers() {
+    return [
+      {
+        source: "/p/:slug",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=86400, stale-while-revalidate=59"
+          },
+        ],
+      },
+    ];
+  }, 
 };
 
 export default nextConfig;
